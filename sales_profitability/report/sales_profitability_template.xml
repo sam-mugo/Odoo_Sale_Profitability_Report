@@ -1,0 +1,286 @@
+<odoo>
+    <data>
+        
+        <template id="profitability_report">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            
+                            <!-- Report Header -->
+                            <div class="row mt32 mb32">
+                                <div class="col-12">
+                                    <h2 class="text-center">
+                                        <strong>Sales Profitability Report</strong>
+                                    </h2>
+                                </div>
+                            </div>
+                            
+                            <!-- Report Parameters -->
+                            <div class="row mb16">
+                                <div class="col-6">
+                                    <table class="table table-sm table-borderless">
+                                        <tr>
+                                            <td><strong>Date From:</strong></td>
+                                            <td t-esc="doc.date_from"/>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Date To:</strong></td>
+                                            <td t-esc="doc.date_to"/>
+                                        </tr>
+                                        <tr t-if="doc.partner_ids">
+                                            <td><strong>Customers:</strong></td>
+                                            <td t-esc="', '.join(doc.partner_ids.mapped('name'))"/>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-6">
+                                    <table class="table table-sm table-borderless">
+                                        <tr t-if="doc.category_ids">
+                                            <td><strong>Categories:</strong></td>
+                                            <td t-esc="', '.join(doc.category_ids.mapped('name'))"/>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Group By:</strong></td>
+                                            <td t-esc="dict(doc._fields['group_by'].selection)[doc.group_by]"/>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Include Taxes:</strong></td>
+                                            <td t-esc="'Yes' if doc.include_taxes else 'No'"/>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Get report data from context -->
+                            <t t-set="report_data" t-value="data.get('report_data', [])"/>
+                            
+                            <!-- Summary Statistics -->
+                            <div class="row mb16">
+                                <div class="col-12">
+                                    <h4>Summary Statistics</h4>
+                                    <t t-set="total_revenue" t-value="sum([order['totals']['revenue'] for order in report_data])"/>
+                                    <t t-set="total_cost" t-value="sum([order['totals']['cost'] for order in report_data])"/>
+                                    <t t-set="total_margin" t-value="total_revenue - total_cost"/>
+                                    <t t-set="avg_margin_percent" t-value="(total_margin / total_revenue * 100) if total_revenue else 0"/>
+                                    
+                                    <div class="row">
+                                        <div class="col-3 text-center">
+                                            <div class="border rounded p-3 bg-light">
+                                                <h5 class="text-primary mb-1">Total Revenue</h5>
+                                                <h4 t-esc="'{:,.2f}'.format(total_revenue)"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 text-center">
+                                            <div class="border rounded p-3 bg-light">
+                                                <h5 class="text-danger mb-1">Total Cost</h5>
+                                                <h4 t-esc="'{:,.2f}'.format(total_cost)"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 text-center">
+                                            <div class="border rounded p-3 bg-light">
+                                                <h5 class="text-success mb-1">Total Margin</h5>
+                                                <h4 t-esc="'{:,.2f}'.format(total_margin)"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 text-center">
+                                            <div class="border rounded p-3 bg-light">
+                                                <h5 class="text-info mb-1">Avg Margin %</h5>
+                                                <h4 t-esc="'{:.2f}%'.format(avg_margin_percent)"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Order-wise Profitability Table -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <h4>Order-wise Profitability</h4>
+                                    <table class="table table-striped table-bordered">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th>Order #</th>
+                                                <th>Customer</th>
+                                                <th>Date</th>
+                                                <th class="text-right">Revenue</th>
+                                                <th class="text-right">Cost</th>
+                                                <th class="text-right">Margin</th>
+                                                <th class="text-right">Margin %</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="report_data" t-as="order">
+                                                <td t-esc="order['order_name']"/>
+                                                <td t-esc="order['customer']"/>
+                                                <td t-esc="order['date_order'].strftime('%Y-%m-%d')"/>
+                                                <td class="text-right" t-esc="'{:,.2f}'.format(order['totals']['revenue'])"/>
+                                                <td class="text-right" t-esc="'{:,.2f}'.format(order['totals']['cost'])"/>
+                                                <td class="text-right">
+                                                    <span t-attf-class="{'text-success' if order['totals']['margin'] >= 0 else 'text-danger'}"
+                                                          t-esc="'{:,.2f}'.format(order['totals']['margin'])"/>
+                                                </td>
+                                                <td class="text-right">
+                                                    <span t-attf-class="{'text-success' if order['totals']['margin_percent'] >= 0 else 'text-danger'}"
+                                                          t-esc="'{:.2f}%'.format(order['totals']['margin_percent'])"/>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot class="thead-light">
+                                            <tr>
+                                                <th colspan="3">TOTAL</th>
+                                                <th class="text-right" t-esc="'{:,.2f}'.format(total_revenue)"/>
+                                                <th class="text-right" t-esc="'{:,.2f}'.format(total_cost)"/>
+                                                <th class="text-right">
+                                                    <span t-attf-class="{'text-success' if total_margin >= 0 else 'text-danger'}"
+                                                          t-esc="'{:,.2f}'.format(total_margin)"/>
+                                                </th>
+                                                <th class="text-right">
+                                                    <span t-attf-class="{'text-success' if avg_margin_percent >= 0 else 'text-danger'}"
+                                                          t-esc="'{:.2f}%'.format(avg_margin_percent)"/>
+                                                </th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Detailed Line Items (if enabled) -->
+                            <div class="row mt32" t-if="doc.show_details">
+                                <div class="col-12">
+                                    <h4>Order Line Details</h4>
+                                    <t t-foreach="report_data" t-as="order">
+                                        <div class="mb16">
+                                            <h5 class="bg-light p-2">
+                                                <strong t-esc="order['order_name']"/> - <span t-esc="order['customer']"/>
+                                            </h5>
+                                            <table class="table table-sm table-bordered">
+                                                <thead class="thead-light">
+                                                    <tr>
+                                                        <th>Product Code</th>
+                                                        <th>Product Name</th>
+                                                        <th>Category</th>
+                                                        <th class="text-right">Qty</th>
+                                                        <th class="text-right">Unit Price</th>
+                                                        <th class="text-right">Revenue</th>
+                                                        <th class="text-right">Cost</th>
+                                                        <th class="text-right">Margin</th>
+                                                        <th class="text-right">Margin %</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr t-foreach="order['lines']" t-as="line">
+                                                        <td t-esc="line['product_code']"/>
+                                                        <td t-esc="line['product_name']"/>
+                                                        <td t-esc="line['category']"/>
+                                                        <td class="text-right" t-esc="'{:,.2f}'.format(line['quantity'])"/>
+                                                        <td class="text-right" t-esc="'{:,.2f}'.format(line['unit_price'])"/>
+                                                        <td class="text-right" t-esc="'{:,.2f}'.format(line['revenue'])"/>
+                                                        <td class="text-right" t-esc="'{:,.2f}'.format(line['cost'])"/>
+                                                        <td class="text-right">
+                                                            <span t-attf-class="{'text-success' if line['margin'] >= 0 else 'text-danger'}"
+                                                                  t-esc="'{:,.2f}'.format(line['margin'])"/>
+                                                        </td>
+                                                        <td class="text-right">
+                                                            <span t-attf-class="{'text-success' if line['margin_percent'] >= 0 else 'text-danger'}"
+                                                                  t-esc="'{:.2f}%'.format(line['margin_percent'])"/>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                                <tfoot class="bg-light">
+                                                    <tr>
+                                                        <th colspan="5">Order Total</th>
+                                                        <th class="text-right" t-esc="'{:,.2f}'.format(order['totals']['revenue'])"/>
+                                                        <th class="text-right" t-esc="'{:,.2f}'.format(order['totals']['cost'])"/>
+                                                        <th class="text-right">
+                                                            <span t-attf-class="{'text-success' if order['totals']['margin'] >= 0 else 'text-danger'}"
+                                                                  t-esc="'{:,.2f}'.format(order['totals']['margin'])"/>
+                                                        </th>
+                                                        <th class="text-right">
+                                                            <span t-attf-class="{'text-success' if order['totals']['margin_percent'] >= 0 else 'text-danger'}"
+                                                                  t-esc="'{:.2f}%'.format(order['totals']['margin_percent'])"/>
+                                                        </th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+
+                            <!-- Charts Section (Optional visual representation) -->
+                            <!-- <div class="row mt32" t-if="len(report_data) <= 10">
+                                <div class="col-12">
+                                    <h4>Top Performing Orders (by Margin %)</h4>
+                                    <t t-set="sorted_orders" t-value="sorted(report_data, key=lambda x: x['totals']['margin_percent'], reverse=True)[:5]"/>
+                                    <div class="row">
+                                        <t t-foreach="sorted_orders" t-as="order">
+                                            <div class="col-12 mb-2">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span t-esc="order['order_name']"/>
+                                                    <div class="progress" style="width: 60%; height: 20px;">
+                                                        <div class="progress-bar bg-success" role="progressbar" 
+                                                             t-attf-style="width: #{min(100, max(0, order['totals']['margin_percent']))}%"
+                                                             t-esc="'{:.1f}%'.format(order['totals']['margin_percent'])">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </div>
+                            </div> -->
+
+                            <!-- Performance Insights -->
+                            <div class="row mt32">
+                                <div class="col-12">
+                                    <h4>Performance Insights</h4>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Best Performing Order</h6>
+                                                    <t t-set="best_order" t-value="max(report_data, key=lambda x: x['totals']['margin_percent']) if report_data else None"/>
+                                                    <t t-if="best_order">
+                                                        <p class="card-text">
+                                                            <strong t-esc="best_order['order_name']"/><br/>
+                                                            Margin: <span class="text-success" t-esc="'{:.2f}%'.format(best_order['totals']['margin_percent'])"/>
+                                                        </p>
+                                                    </t>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Orders Count</h6>
+                                                    <p class="card-text">
+                                                        Total Orders: <strong t-esc="len(report_data)"/><br/>
+                                                        Profitable: <strong t-esc="len([o for o in report_data if o['totals']['margin'] > 0])"/>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Footer with generation info -->
+                            <div class="row mt32">
+                                <div class="col-12 text-center text-muted">
+                                    <hr/>
+                                    <small>
+                                        Report generated on <span t-esc="datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')"/>
+                                        by <span t-esc="user.name"/>
+                                    </small>
+                                </div>
+                            </div>
+
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>

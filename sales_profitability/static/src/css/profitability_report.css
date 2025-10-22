@@ -1,0 +1,263 @@
+/* File: static/src/css/profitability_report.css */
+
+/* Sales Profitability Report Styling */
+
+/* Wizard Form Styling */
+.o_form_sheet .oe_title h1 {
+    color: #2c3e50;
+    font-weight: 300;
+    margin-bottom: 10px;
+}
+
+.o_form_sheet .oe_title .oe_grey {
+    color: #7c7bad;
+    font-size: 14px;
+    font-style: italic;
+}
+
+/* Group styling */
+.o_group .o_group_col_6 {
+    margin-bottom: 15px;
+}
+
+/* Button styling */
+.o_form_sheet .oe_button_box {
+    margin-bottom: 20px;
+}
+
+/* Report specific styling */
+.profitability-summary-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.profitability-metric {
+    text-align: center;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.metric-value {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.metric-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.8;
+}
+
+.profit-positive {
+    color: #27ae60;
+}
+
+.profit-negative {
+    color: #e74c3c;
+}
+
+.profit-neutral {
+    color: #f39c12;
+}
+
+/* Table styling */
+.profitability-table {
+    font-size: 13px;
+}
+
+.profitability-table th {
+    background-color: #34495e;
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    padding: 12px 8px;
+}
+
+.profitability-table td {
+    padding: 10px 8px;
+    vertical-align: middle;
+}
+
+.profitability-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.order-details-section {
+    margin-top: 30px;
+    border-top: 3px solid #3498db;
+    padding-top: 20px;
+}
+
+.order-header {
+    background: linear-gradient(90deg, #3498db, #2980b9);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px 5px 0 0;
+    font-weight: bold;
+}
+
+/* Progress bars for margin visualization */
+.margin-progress {
+    height: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #ecf0f1;
+}
+
+.margin-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #e74c3c 0%, #f39c12 50%, #27ae60 100%);
+    transition: width 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+/* Chart styling */
+.performance-chart {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .profitability-table {
+        font-size: 11px;
+    }
+    
+    .profitability-table th,
+    .profitability-table td {
+        padding: 6px 4px;
+    }
+    
+    .metric-value {
+        font-size: 18px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .profitability-summary-card {
+        background: #f8f9fa !important;
+        color: #2c3e50 !important;
+        border: 2px solid #3498db;
+    }
+    
+    .profitability-table th {
+        background-color: #ecf0f1 !important;
+        color: #2c3e50 !important;
+        border: 1px solid #bdc3c7;
+    }
+    
+    .order-header {
+        background: #ecf0f1 !important;
+        color: #2c3e50 !important;
+        border: 1px solid #bdc3c7;
+    }
+    
+    .profit-positive {
+        color: #000000 !important;
+        font-weight: bold;
+    }
+    
+    .profit-negative {
+        color: #000000 !important;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+}
+
+/* Loading animation */
+.profitability-loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Success/Error messages */
+.profitability-alert {
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    border-left: 4px solid;
+}
+
+.profitability-alert-success {
+    background-color: #d4edda;
+    border-color: #27ae60;
+    color: #155724;
+}
+
+.profitability-alert-error {
+    background-color: #f8d7da;
+    border-color: #e74c3c;
+    color: #721c24;
+}
+
+.profitability-alert-warning {
+    background-color: #fff3cd;
+    border-color: #f39c12;
+    color: #856404;
+}
+
+/* Export buttons styling */
+.export-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: center;
+}
+
+.export-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.export-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.export-button.excel {
+    background-color: #217346;
+    color: white;
+}
+
+.export-button.pdf {
+    background-color: #d32f2f;
+    color: white;
+}
+
+.export-button.print {
+    background-color: #1976d2;
+    color: white;
+}
